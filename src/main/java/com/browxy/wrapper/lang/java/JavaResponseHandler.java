@@ -13,11 +13,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.browxy.wrapper.error.ErrorMessageResponse;
 import com.browxy.wrapper.lang.CompilerCode;
 import com.browxy.wrapper.message.JavaMessage;
 import com.browxy.wrapper.message.Message;
 import com.browxy.wrapper.response.ResponseMessage;
+import com.browxy.wrapper.status.StatusMessageResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -44,9 +44,9 @@ public class JavaResponseHandler implements ResponseMessage {
 		if (userClass == null) {
 			String containerBasePath = System.getProperty("containerBasePath");
 			File userCodeFile = new File(containerBasePath + message.getUserCodePath());
-			ErrorMessageResponse errorMessageResponse = ErrorMessageResponse.getInstance();
+			StatusMessageResponse errorMessageResponse = StatusMessageResponse.getInstance();
 			errorMessageResponse.setMessage("Failed to load user code. File: " + userCodeFile.getAbsolutePath());
-			return new Gson().toJson(errorMessageResponse, ErrorMessageResponse.class);
+			return new Gson().toJson(errorMessageResponse, StatusMessageResponse.class);
 		}
 
 		try {
@@ -55,9 +55,9 @@ public class JavaResponseHandler implements ResponseMessage {
 
 		} catch (Exception e) {
 			logger.error("Error executing user code:", e);
-			ErrorMessageResponse errorMessageResponse = ErrorMessageResponse.getInstance();
+			StatusMessageResponse errorMessageResponse = StatusMessageResponse.getInstance();
 			errorMessageResponse.setMessage("Error executing user code: " + e.getMessage());
-			return new Gson().toJson(errorMessageResponse, ErrorMessageResponse.class);
+			return new Gson().toJson(errorMessageResponse, StatusMessageResponse.class);
 
 		}
 	}

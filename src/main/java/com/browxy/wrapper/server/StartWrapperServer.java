@@ -5,6 +5,8 @@ import java.net.InetSocketAddress;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.server.WebSocketHandler;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.java_websocket.server.WebSocketServer;
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.browxy.wrapper.server.config.Config;
 import com.browxy.wrapper.server.config.PropertiesReader;
+import com.browxy.wrapper.server.servlets.FileUploadServlet;
 
 public class StartWrapperServer {
 	private static final Logger logger = LoggerFactory.getLogger(StartWrapperServer.class);
@@ -44,6 +47,9 @@ public class StartWrapperServer {
 			resourceHandler.setResourceBase(containerBasePath + config.getStaticDir());
 			resourceHandler.setWelcomeFiles(new String[] { config.getStaticFile() });
 
+	        ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+	        servletContextHandler.addServlet(new ServletHolder(new FileUploadServlet(containerBasePath)), "/upload");
+		
 			WebSocketHandler wsHandler = new WebSocketHandler() {
 				@Override
 				public void configure(WebSocketServletFactory factory) {
@@ -53,6 +59,7 @@ public class StartWrapperServer {
 
 			HandlerList handlers = new HandlerList();
 			handlers.addHandler(resourceHandler);
+			handlers.addHandler(servletContextHandler);
 			handlers.addHandler(wsHandler);
 
 			jettyServer.setHandler(handlers);

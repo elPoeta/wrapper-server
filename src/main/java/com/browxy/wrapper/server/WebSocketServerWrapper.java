@@ -5,8 +5,8 @@ import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.browxy.wrapper.error.ErrorMessageResponse;
 import com.browxy.wrapper.response.ResponseHandler;
+import com.browxy.wrapper.status.StatusMessageResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -49,9 +49,9 @@ public class WebSocketServerWrapper extends WebSocketServer {
 	public void onError(WebSocket conn, Exception ex) {
 		logger.error("",ex);
 		String errorMessage = ex.getMessage() != null || !ex.getMessage().trim().equals("") ? ex.getMessage() : "An error has occurred in the connection";
-		ErrorMessageResponse errorMessageResponse = ErrorMessageResponse.getInstance();
+		StatusMessageResponse errorMessageResponse = StatusMessageResponse.getInstance();
 		errorMessageResponse.setMessage(errorMessage);
-		conn.send(this.gson.toJson(errorMessageResponse, ErrorMessageResponse.class));
+		conn.send(this.gson.toJson(errorMessageResponse, StatusMessageResponse.class));
 	}
 
 	@Override

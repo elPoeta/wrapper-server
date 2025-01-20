@@ -1,18 +1,18 @@
-package com.browxy.wrapper.error;
+package com.browxy.wrapper.status;
 
-public class ErrorMessageResponse {
+public class StatusMessageResponse {
 	private int statusCode;
 	private String message;
 
-	public ErrorMessageResponse() {
+	public StatusMessageResponse() {
 	}
 
-	public ErrorMessageResponse(int statusCode) {
+	public StatusMessageResponse(int statusCode) {
 		this.statusCode = statusCode;
 	}
 
-	public static ErrorMessageResponse getInstance() {
-		return new ErrorMessageResponse(400);
+	public static StatusMessageResponse getInstance() {
+		return new StatusMessageResponse(400);
 	}
 
 	public int getStatusCode() {
