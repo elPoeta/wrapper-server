@@ -6,11 +6,13 @@ public class Config {
 	private int port;
 	private String staticDir;
 	private String staticFile;
+	private String storage;
 
 	public Config(Properties properties) {
 		this.port = Integer.parseInt(properties.getProperty("server.port"));
 		this.staticDir = properties.getProperty("server.staticDir");
 		this.staticFile = properties.getProperty("server.staticFile");
+		this.storage = properties.getProperty("server.storage");
 	}
 
 	public int getPort() {
@@ -37,4 +39,13 @@ public class Config {
 		this.staticFile = staticFile;
 	}
 
+	public String getStorage() {
+		return storage;
+	}
+
+	public void setStorage(String storage) {
+		this.storage = storage;
+	}
+
+	
 }

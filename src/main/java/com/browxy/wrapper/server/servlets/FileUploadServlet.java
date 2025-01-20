@@ -9,6 +9,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.browxy.wrapper.status.StatusMessageResponse;
 import com.google.gson.Gson;
@@ -19,7 +21,7 @@ import java.util.List;
 
 public class FileUploadServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+	private static final Logger logger = LoggerFactory.getLogger(FileUploadServlet.class);
 	private final String uploadPath;
 
 	public FileUploadServlet(String uploadPath) {
@@ -48,19 +50,22 @@ public class FileUploadServlet extends HttpServlet {
 		String message = "file/s uploaded OK";
 		try {
 			List<FileItem> formItems = upload.parseRequest(request);
-			String alias = request.getAttribute("alias").toString();
+			String alias = request.getParameter("alias");
+			// create dir if not exist
 			for (FileItem item : formItems) {
 				if (!item.isFormField()) {
 					String fileName = new File(item.getName()).getName();
-					String filePath = uploadPath + File.separator + alias + File.separator + fileName;
+					String filePath = uploadPath  + File.separator + alias + File.separator + fileName;
 					File storeFile = new File(filePath);
 					item.write(storeFile);
 				}
 			}
 			code = 200;
 		} catch (FileUploadBase.SizeLimitExceededException e) {
+			logger.error("File size exceeds the limit!:",e);	
 			message = "File size exceeds the limit!";
 		} catch (Exception e) {
+			logger.error("Error while uploading file:",e);
 			message = "Error while uploading file: " + e.getMessage();
 		} finally {
 			response.getWriter().write(getResponseMesage(message, code));

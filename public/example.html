@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <script>
+        let socket;
+        function connectWebSocket() {
+            socket = new WebSocket("ws://localhost:9191");
+            socket.onmessage = (event) => {
+                console.log("Message from server:", event.data);
+				document.getElementById('response').innerHTML = JSON.stringify(JSON.parse(event.data), null, 2)
+            };
+        }
+
+        function sendMessage() {
+            const message = document.getElementById("message").value;
+            socket.send(message);
+        }
+		
+		async function upload(ev) {
+			ev.preventDefault();
+			const form = document.forms.namedItem("uploadFiles");
+			const formData = new FormData(form);
+			const response  = await fetch('/upload', {
+			   method: 'POST',
+			   body: formData
+			 });
+			 const json = await response.json();
+			 console.log(json);
+		} 
+    </script>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <textarea  id="message" placeholder="Type a message" cols="40" rows="10"></textarea>
+    <button onclick="sendMessage()">Send</button>
+    <button onclick="connectWebSocket()">Connect</button>
+	<form method="post" enctype="multipart/form-data" name="uploadFiles">
+	    Select file to upload:
+		<input type="hidden" value="bxy" />
+	    <input type="file" name="file" />
+	    <input type="submit"  onclick="upload();"  value="Upload" />
+	</form>
+
+	<pre>
+		<code id="response"></code>
+	</pre>
+</body>
+</html>

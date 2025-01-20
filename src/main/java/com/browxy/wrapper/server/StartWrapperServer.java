@@ -49,8 +49,8 @@ public class StartWrapperServer {
 			resourceHandler.setWelcomeFiles(new String[] { config.getStaticFile() });
 
 	        ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-	        servletContextHandler.addServlet(new ServletHolder(new FileUploadServlet(containerBasePath)), "/upload");
-	        servletContextHandler.addServlet(new ServletHolder(new GetAssetServlet(containerBasePath)), "/getAsset");
+	        servletContextHandler.addServlet(new ServletHolder(new FileUploadServlet(config.getStorage())), "/upload");
+	        servletContextHandler.addServlet(new ServletHolder(new GetAssetServlet(config.getStorage())), "/getAsset");
 		
 			WebSocketHandler wsHandler = new WebSocketHandler() {
 				@Override
