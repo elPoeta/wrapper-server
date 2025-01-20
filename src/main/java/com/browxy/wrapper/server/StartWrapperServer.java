@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.browxy.wrapper.server.config.Config;
 import com.browxy.wrapper.server.config.PropertiesReader;
 import com.browxy.wrapper.server.servlets.FileUploadServlet;
+import com.browxy.wrapper.server.servlets.GetAssetServlet;
 
 public class StartWrapperServer {
 	private static final Logger logger = LoggerFactory.getLogger(StartWrapperServer.class);
@@ -49,6 +50,7 @@ public class StartWrapperServer {
 
 	        ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 	        servletContextHandler.addServlet(new ServletHolder(new FileUploadServlet(containerBasePath)), "/upload");
+	        servletContextHandler.addServlet(new ServletHolder(new GetAssetServlet(containerBasePath)), "/getAsset");
 		
 			WebSocketHandler wsHandler = new WebSocketHandler() {
 				@Override
