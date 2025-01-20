@@ -21,12 +21,13 @@ public class GetAssetServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String fileName = request.getParameter("file");
+        String alias = request.getParameter("alias");
         if (fileName == null || fileName.trim().isEmpty()) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "File name is missing");
             return;
         }
-
-        File file = new File(downloadPath, fileName);
+        String path = alias != null && !alias.trim().isEmpty() ? downloadPath + File.separator + alias : downloadPath; 
+        File file = new File(path, fileName);
         if (!file.exists() || !file.isFile()) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "File not found");
             return;

@@ -50,12 +50,14 @@ public class FileUploadServlet extends HttpServlet {
 		String message = "file/s uploaded OK";
 		try {
 			List<FileItem> formItems = upload.parseRequest(request);
-			String alias = request.getParameter("alias");
+			 String alias = request.getParameter("alias");
+			 String path = alias != null && !alias.trim().isEmpty() ? uploadPath + File.separator + alias : uploadPath; 
 			// create dir if not exist
 			for (FileItem item : formItems) {
 				if (!item.isFormField()) {
 					String fileName = new File(item.getName()).getName();
-					String filePath = uploadPath  + File.separator + alias + File.separator + fileName;
+					//String filePath = uploadPath  + File.separator + alias + File.separator + fileName;
+					String filePath = path  + File.separator + fileName;
 					File storeFile = new File(filePath);
 					item.write(storeFile);
 				}
