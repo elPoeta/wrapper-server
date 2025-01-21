@@ -76,7 +76,7 @@ public class StartWrapperServer {
 	private static void startWebSocketServer(int port) {
 		try {
 			WebSocketServerWrapper webSocketServer = new WebSocketServerWrapper(
-					new InetSocketAddress("localhost", port));
+					new InetSocketAddress(port));
 			webSocketServer.start();
 			logger.info("WebSocket server started at ws://localhost:" + port);
 		} catch (Exception e) {
