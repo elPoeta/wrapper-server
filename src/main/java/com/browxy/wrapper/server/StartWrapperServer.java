@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.browxy.wrapper.server.config.Config;
 import com.browxy.wrapper.server.config.PropertiesReader;
+import com.browxy.wrapper.server.servlets.FileReaderServlet;
 import com.browxy.wrapper.server.servlets.FileUploadServlet;
 import com.browxy.wrapper.server.servlets.GetAssetServlet;
 
@@ -26,12 +27,12 @@ public class StartWrapperServer {
 		if (!validationSystemProps.isValid()) {
 			throw new RuntimeException(validationSystemProps.getMessage());
 		}
-        Config config = PropertiesReader.read();
-        if(config == null) {
-        	throw new RuntimeException("Server config not loaded...");
-        }
+		Config config = PropertiesReader.read();
+		if (config == null) {
+			throw new RuntimeException("Server config not loaded...");
+		}
 		String containerBasePath = System.getProperty("containerBasePath");
-        
+
 		Thread jettyThread = new Thread(() -> startJettyServer(config, containerBasePath));
 		jettyThread.start();
 
@@ -48,10 +49,8 @@ public class StartWrapperServer {
 			resourceHandler.setResourceBase(containerBasePath + config.getStaticDir());
 			resourceHandler.setWelcomeFiles(new String[] { config.getStaticFile() });
 
-	        ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-	        servletContextHandler.addServlet(new ServletHolder(new FileUploadServlet(config.getStorage())), "/upload");
-	        servletContextHandler.addServlet(new ServletHolder(new GetAssetServlet(config.getStorage())), "/getAsset");
-		
+			ServletContextHandler servletContextHandler = getServletHandler(config);
+
 			WebSocketHandler wsHandler = new WebSocketHandler() {
 				@Override
 				public void configure(WebSocketServletFactory factory) {
@@ -75,13 +74,24 @@ public class StartWrapperServer {
 
 	private static void startWebSocketServer(int port) {
 		try {
-			WebSocketServerWrapper webSocketServer = new WebSocketServerWrapper(
-					new InetSocketAddress(port));
+			WebSocketServerWrapper webSocketServer = new WebSocketServerWrapper(new InetSocketAddress(port));
 			webSocketServer.start();
 			logger.info("WebSocket server started at ws://localhost:" + port);
 		} catch (Exception e) {
 			logger.error("Error starting WebSocket server", e);
 		}
+	}
+
+	private static ServletContextHandler getServletHandler(Config config) {
+		String basePath = System.getProperty("containerBasePath");
+		ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		servletContextHandler.addServlet(new ServletHolder(new FileUploadServlet(config.getStorage())),
+				"/api/v1/upload");
+		servletContextHandler.addServlet(new ServletHolder(new GetAssetServlet(config.getStorage())),
+				"/api/v1/getAsset");
+		servletContextHandler.addServlet(new ServletHolder(new FileReaderServlet(basePath + config.getBuilderPages())),
+				"/api/v1/readFile");
+		return servletContextHandler;
 	}
 
 	private static ValidationSystemProps validateSystemProperties() {

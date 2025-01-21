@@ -75,9 +75,9 @@ public class FileUploadServlet extends HttpServlet {
 	}
 
 	private String getResponseMesage(String message, int statusCode) {
-		StatusMessageResponse errorMessageResponse = StatusMessageResponse.getInstance();
-		errorMessageResponse.setStatusCode(statusCode);
-		errorMessageResponse.setMessage(message);
-		return new Gson().toJson(errorMessageResponse, StatusMessageResponse.class);
+		StatusMessageResponse messageResponse = StatusMessageResponse.getInstance();
+		messageResponse.setStatusCode(statusCode);
+		messageResponse.setMessage(message);
+		return new Gson().toJson(messageResponse, StatusMessageResponse.class);
 	}
 }

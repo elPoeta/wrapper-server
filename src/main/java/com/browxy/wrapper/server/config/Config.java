@@ -7,12 +7,14 @@ public class Config {
 	private String staticDir;
 	private String staticFile;
 	private String storage;
+	private String builderPages;
 
 	public Config(Properties properties) {
 		this.port = Integer.parseInt(properties.getProperty("server.port"));
 		this.staticDir = properties.getProperty("server.staticDir");
 		this.staticFile = properties.getProperty("server.staticFile");
 		this.storage = properties.getProperty("server.storage");
+		this.builderPages = properties.getProperty("server.builderPages");
 	}
 
 	public int getPort() {
@@ -45,6 +47,14 @@ public class Config {
 
 	public void setStorage(String storage) {
 		this.storage = storage;
+	}
+
+	public String getBuilderPages() {
+		return builderPages;
+	}
+
+	public void setBuilderPages(String builderPages) {
+		this.builderPages = builderPages;
 	}
 
 	
