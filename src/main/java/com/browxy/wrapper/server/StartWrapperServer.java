@@ -1,10 +1,10 @@
 package com.browxy.wrapper.server;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.server.WebSocketHandler;
@@ -18,6 +18,7 @@ import com.browxy.wrapper.server.config.PropertiesReader;
 import com.browxy.wrapper.server.servlets.FileReaderServlet;
 import com.browxy.wrapper.server.servlets.FileUploadServlet;
 import com.browxy.wrapper.server.servlets.GetAssetServlet;
+import com.browxy.wrapper.server.servlets.SendStaticFileServlet;
 
 public class StartWrapperServer {
 	private static final Logger logger = LoggerFactory.getLogger(StartWrapperServer.class);
@@ -44,11 +45,6 @@ public class StartWrapperServer {
 	private static void startJettyServer(Config config, String containerBasePath) {
 		try {
 			Server jettyServer = new Server(config.getPort());
-
-			ResourceHandler resourceHandler = new ResourceHandler();
-			resourceHandler.setResourceBase(containerBasePath + config.getStaticDir());
-			resourceHandler.setWelcomeFiles(new String[] { config.getStaticFile() });
-
 			ServletContextHandler servletContextHandler = getServletHandler(config);
 
 			WebSocketHandler wsHandler = new WebSocketHandler() {
@@ -59,11 +55,11 @@ public class StartWrapperServer {
 			};
 
 			HandlerList handlers = new HandlerList();
-			handlers.addHandler(resourceHandler);
 			handlers.addHandler(servletContextHandler);
 			handlers.addHandler(wsHandler);
 
 			jettyServer.setHandler(handlers);
+
 			jettyServer.start();
 			logger.info("Jetty server started at http://localhost:" + config.getPort());
 			jettyServer.join();
@@ -85,12 +81,17 @@ public class StartWrapperServer {
 	private static ServletContextHandler getServletHandler(Config config) {
 		String basePath = System.getProperty("containerBasePath");
 		ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		servletContextHandler.addServlet(
+				new ServletHolder(new SendStaticFileServlet(
+						basePath + File.separator + config.getStaticDir() + File.separator + config.getStaticFile())),
+				"/*");
 		servletContextHandler.addServlet(new ServletHolder(new FileUploadServlet(config.getStorage())),
 				"/api/v1/upload");
 		servletContextHandler.addServlet(new ServletHolder(new GetAssetServlet(config.getStorage())),
 				"/api/v1/getAsset");
 		servletContextHandler.addServlet(new ServletHolder(new FileReaderServlet(basePath + config.getBuilderPages())),
 				"/api/v1/readFile");
+		servletContextHandler.setContextPath("/");
 		return servletContextHandler;
 	}
 
