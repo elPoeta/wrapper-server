@@ -12,6 +12,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.browxy.wrapper.fileUtils.FileManager;
 import com.browxy.wrapper.status.StatusMessageResponse;
 import com.google.gson.Gson;
 
@@ -50,24 +51,23 @@ public class FileUploadServlet extends HttpServlet {
 		String message = "file/s uploaded OK";
 		try {
 			List<FileItem> formItems = upload.parseRequest(request);
-			 String alias = request.getParameter("alias");
-			 String path = alias != null && !alias.trim().isEmpty() ? uploadPath + File.separator + alias : uploadPath; 
-			// create dir if not exist
+			String alias = request.getParameter("alias");
+			String path = alias != null && !alias.trim().isEmpty() ? uploadPath + File.separator + alias : uploadPath;
+			FileManager.createDirectory(path);
 			for (FileItem item : formItems) {
 				if (!item.isFormField()) {
 					String fileName = new File(item.getName()).getName();
-					//String filePath = uploadPath  + File.separator + alias + File.separator + fileName;
-					String filePath = path  + File.separator + fileName;
+					String filePath = path + File.separator + fileName;
 					File storeFile = new File(filePath);
 					item.write(storeFile);
 				}
 			}
 			code = 200;
 		} catch (FileUploadBase.SizeLimitExceededException e) {
-			logger.error("File size exceeds the limit!:",e);	
+			logger.error("File size exceeds the limit!:", e);
 			message = "File size exceeds the limit!";
 		} catch (Exception e) {
-			logger.error("Error while uploading file:",e);
+			logger.error("Error while uploading file:", e);
 			message = "Error while uploading file: " + e.getMessage();
 		} finally {
 			response.getWriter().write(getResponseMesage(message, code));
