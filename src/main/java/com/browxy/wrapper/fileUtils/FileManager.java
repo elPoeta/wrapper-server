@@ -9,29 +9,28 @@ import java.io.InputStreamReader;
 public class FileManager {
 
 	public static String readFile(String completeFilePath) throws FileNotFoundException {
-        return readFile(completeFilePath, "UTF-8");
-    }
+		return readFile(completeFilePath, "UTF-8");
+	}
 
-    public static String readFile(String fileName, String encoding) throws FileNotFoundException {
-        return readFile(new FileInputStream(fileName), encoding);
-    }
+	public static String readFile(String fileName, String encoding) throws FileNotFoundException {
+		return readFile(new FileInputStream(fileName), encoding);
+	}
 
-    public static String readFile(InputStream inputStream, String encoding) {
-        return readFile(inputStream, encoding, true);
-    }
+	public static String readFile(InputStream inputStream, String encoding) {
+		return readFile(inputStream, encoding, true);
+	}
 
-    public static String readFile(InputStream inputStream, String encoding, boolean preserveCR) {
-        StringBuilder strBuilder = null;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, encoding))) {
-            strBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                strBuilder.append(line + (preserveCR ? '\n' : ""));
-            }
-        } catch (Exception e1) {
-            throw new RuntimeException(e1);
-        }
-        return strBuilder.toString();
-    }
+	public static String readFile(InputStream inputStream, String encoding, boolean preserveCR) {
+		StringBuilder strBuilder = null;
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, encoding))) {
+			strBuilder = new StringBuilder();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				strBuilder.append(line + (preserveCR ? '\n' : ""));
+			}
+		} catch (Exception e1) {
+			throw new RuntimeException(e1);
+		}
+		return strBuilder.toString();
+	}
 }
-
