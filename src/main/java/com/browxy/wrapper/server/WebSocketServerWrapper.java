@@ -27,6 +27,7 @@ public class WebSocketServerWrapper extends WebSocketServer {
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
+		logger.info("Open connection: ",conn.getRemoteSocketAddress());
 		JsonObject json = new JsonObject();
 		json.addProperty("remoteAddress", conn.getRemoteSocketAddress().toString());
 		json.addProperty("isOpen", conn.isOpen());
