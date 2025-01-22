@@ -5,6 +5,7 @@ import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.browxy.wrapper.response.ResponseBuilder;
 import com.browxy.wrapper.response.ResponseHandler;
 import com.browxy.wrapper.status.StatusMessageResponse;
 import com.google.gson.Gson;
@@ -29,6 +30,7 @@ public class WebSocketServerWrapper extends WebSocketServer {
 		JsonObject json = new JsonObject();
 		json.addProperty("remoteAddress", conn.getRemoteSocketAddress().toString());
 		json.addProperty("isOpen", conn.isOpen());
+		json.addProperty("type", "open");
 		conn.send(this.gson.toJson(json));
 	}
 
@@ -40,15 +42,18 @@ public class WebSocketServerWrapper extends WebSocketServer {
 	@Override
 	public void onMessage(WebSocket conn, String message) {
 		logger.info(message);
-		ResponseHandler responseHandler = new ResponseHandler(message);
-		String result = responseHandler.getResponse();
+		ResponseBuilder responseBuilder = this.gson.fromJson(message, ResponseBuilder.class);
+		ResponseHandler responseHandler = new ResponseHandler(responseBuilder.getPayload());
+		String result = this.buildResponse(responseHandler, responseBuilder.getType());
+
 		conn.send(result);
 	}
 
 	@Override
 	public void onError(WebSocket conn, Exception ex) {
-		logger.error("",ex);
-		String errorMessage = ex.getMessage() != null || !ex.getMessage().trim().equals("") ? ex.getMessage() : "An error has occurred in the connection";
+		logger.error("", ex);
+		String errorMessage = ex.getMessage() != null || !ex.getMessage().trim().equals("") ? ex.getMessage()
+				: "An error has occurred in the connection";
 		StatusMessageResponse errorMessageResponse = StatusMessageResponse.getInstance();
 		errorMessageResponse.setMessage(errorMessage);
 		conn.send(this.gson.toJson(errorMessageResponse, StatusMessageResponse.class));
@@ -57,5 +62,10 @@ public class WebSocketServerWrapper extends WebSocketServer {
 	@Override
 	public void onStart() {
 		logger.info("WebSocket server started successfully");
+	}
+
+	private String buildResponse(ResponseHandler responseHandler, String type) {
+		ResponseBuilder responseBuilder = new ResponseBuilder(responseHandler.getResponse(), type);
+		return this.gson.toJson(responseBuilder, ResponseBuilder.class);
 	}
 }

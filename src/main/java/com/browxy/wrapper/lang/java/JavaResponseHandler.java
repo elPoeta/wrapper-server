@@ -17,7 +17,7 @@ import com.browxy.wrapper.lang.CompilerCode;
 import com.browxy.wrapper.message.JavaMessage;
 import com.browxy.wrapper.message.Message;
 import com.browxy.wrapper.response.ResponseMessage;
-import com.browxy.wrapper.status.StatusMessageResponse;
+import com.browxy.wrapper.response.ResponseMessageUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -44,9 +44,8 @@ public class JavaResponseHandler implements ResponseMessage {
 		if (userClass == null) {
 			String containerBasePath = System.getProperty("containerBasePath");
 			File userCodeFile = new File(containerBasePath + message.getUserCodePath());
-			StatusMessageResponse errorMessageResponse = StatusMessageResponse.getInstance();
-			errorMessageResponse.setMessage("Failed to load user code. File: " + userCodeFile.getAbsolutePath());
-			return new Gson().toJson(errorMessageResponse, StatusMessageResponse.class);
+			return ResponseMessageUtil.getStatusMessage(
+					"Failed to load user code. File: " + userCodeFile.getAbsolutePath());
 		}
 
 		try {
@@ -55,17 +54,14 @@ public class JavaResponseHandler implements ResponseMessage {
 
 		} catch (Exception e) {
 			logger.error("Error executing user code:", e);
-			StatusMessageResponse errorMessageResponse = StatusMessageResponse.getInstance();
-			errorMessageResponse.setMessage("Error executing user code: " + e.getMessage());
-			return new Gson().toJson(errorMessageResponse, StatusMessageResponse.class);
-
+			return ResponseMessageUtil.getStatusMessage("Error executing user code: " + e.getMessage());
 		}
 	}
 
 	private Class<?> getCachedOrCompileUserClass() {
 		String containerBasePath = System.getProperty("containerBasePath");
 		File userCodeFile = new File(containerBasePath + message.getUserCodePath());
-		
+
 		if (cachedUserClass == null || userCodeFile.lastModified() > lastModified) {
 			logger.info("User code change detected. Recompiling...");
 
@@ -81,7 +77,7 @@ public class JavaResponseHandler implements ResponseMessage {
 			URLClassLoader classLoader = null;
 			try {
 				File targetDir = new File(containerBasePath + "/target/classes");
-			
+
 				classLoader = new URLClassLoader(new URL[] { targetDir.toURI().toURL() },
 						this.getClass().getClassLoader());
 

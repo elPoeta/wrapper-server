@@ -13,8 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.browxy.wrapper.fileUtils.FileManager;
-import com.browxy.wrapper.status.StatusMessageResponse;
-import com.google.gson.Gson;
+import com.browxy.wrapper.response.ResponseMessageUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +33,7 @@ public class FileUploadServlet extends HttpServlet {
 			throws ServletException, IOException {
 		if (!ServletFileUpload.isMultipartContent(request)) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().write(getResponseMessage("Request does not contain upload data", 400));
+			response.getWriter().write(ResponseMessageUtil.getStatusMessage("Request does not contain upload data", 400));
 			return;
 		}
 
@@ -71,14 +70,7 @@ public class FileUploadServlet extends HttpServlet {
 			message = "Error while uploading file: " + e.getMessage();
 		} finally {
 			response.setStatus(code == 200 ? HttpServletResponse.SC_OK : HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().write(getResponseMessage(message, code));
+			response.getWriter().write(ResponseMessageUtil.getStatusMessage(message, code));
 		}
-	}
-
-	private String getResponseMessage(String message, int statusCode) {
-		StatusMessageResponse messageResponse = StatusMessageResponse.getInstance();
-		messageResponse.setStatusCode(statusCode);
-		messageResponse.setMessage(message);
-		return new Gson().toJson(messageResponse, StatusMessageResponse.class);
 	}
 }

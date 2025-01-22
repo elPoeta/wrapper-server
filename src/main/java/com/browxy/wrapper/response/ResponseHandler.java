@@ -15,4 +15,5 @@ public class ResponseHandler {
 	public String getResponse() {
 		return this.responseMessage.handleClientRequest();
 	}
+	
 }

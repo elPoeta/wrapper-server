@@ -3,7 +3,7 @@ package com.browxy.wrapper.status;
 public class StatusMessageResponse {
 	private int statusCode;
 	private String message;
-
+    
 	public StatusMessageResponse() {
 	}
 
@@ -14,7 +14,7 @@ public class StatusMessageResponse {
 	public static StatusMessageResponse getInstance() {
 		return new StatusMessageResponse(400);
 	}
-
+	
 	public int getStatusCode() {
 		return statusCode;
 	}
