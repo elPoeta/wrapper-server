@@ -6,15 +6,15 @@ public class Config {
 	private int port;
 	private String staticDir;
 	private String staticFile;
+	private String entryPoint;
 	private String storage;
-	private String builderPages;
 
 	public Config(Properties properties) {
 		this.port = Integer.parseInt(properties.getProperty("server.port"));
 		this.staticDir = properties.getProperty("server.staticDir");
 		this.staticFile = properties.getProperty("server.staticFile");
+		this.entryPoint = properties.getProperty("server.entryPoint");
 		this.storage = properties.getProperty("server.storage");
-		this.builderPages = properties.getProperty("server.builderPages");
 	}
 
 	public int getPort() {
@@ -41,6 +41,14 @@ public class Config {
 		this.staticFile = staticFile;
 	}
 
+	public String getEntryPoint() {
+		return entryPoint;
+	}
+
+	public void setEntryPoint(String entryPoint) {
+		this.entryPoint = entryPoint;
+	}
+
 	public String getStorage() {
 		return storage;
 	}
@@ -49,13 +57,4 @@ public class Config {
 		this.storage = storage;
 	}
 
-	public String getBuilderPages() {
-		return builderPages;
-	}
-
-	public void setBuilderPages(String builderPages) {
-		this.builderPages = builderPages;
-	}
-
-	
 }

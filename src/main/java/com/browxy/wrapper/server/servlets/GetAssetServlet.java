@@ -27,22 +27,24 @@ public class GetAssetServlet extends HttpServlet {
 		String fileName = request.getParameter("file");
 		String alias = request.getParameter("alias");
 		if (fileName == null || fileName.trim().isEmpty()) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, getResponseMesage("File name is missing", 400));
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write(getResponseMessage("File name is missing", 400));
 			return;
 		}
 		String path = alias != null && !alias.trim().isEmpty() ? downloadPath + File.separator + alias : downloadPath;
 		File file = new File(path, fileName);
 		if (!file.exists() || !file.isFile()) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND, getResponseMesage("File not found", 400));
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write(getResponseMessage("File not found", 400));
 			return;
 		}
-
+        response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("application/octet-stream");
 		response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
 		FileUtils.copyFile(file, response.getOutputStream());
 	}
 
-	private String getResponseMesage(String message, int statusCode) {
+	private String getResponseMessage(String message, int statusCode) {
 		StatusMessageResponse messageResponse = StatusMessageResponse.getInstance();
 		messageResponse.setStatusCode(statusCode);
 		messageResponse.setMessage(message);

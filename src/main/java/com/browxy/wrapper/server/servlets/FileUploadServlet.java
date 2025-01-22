@@ -33,8 +33,8 @@ public class FileUploadServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		if (!ServletFileUpload.isMultipartContent(request)) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-					getResponseMesage("Request does not contain upload data", 400));
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write(getResponseMessage("Request does not contain upload data", 400));
 			return;
 		}
 
@@ -70,11 +70,12 @@ public class FileUploadServlet extends HttpServlet {
 			logger.error("Error while uploading file:", e);
 			message = "Error while uploading file: " + e.getMessage();
 		} finally {
-			response.getWriter().write(getResponseMesage(message, code));
+			response.setStatus(code == 200 ? HttpServletResponse.SC_OK : HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write(getResponseMessage(message, code));
 		}
 	}
 
-	private String getResponseMesage(String message, int statusCode) {
+	private String getResponseMessage(String message, int statusCode) {
 		StatusMessageResponse messageResponse = StatusMessageResponse.getInstance();
 		messageResponse.setStatusCode(statusCode);
 		messageResponse.setMessage(message);

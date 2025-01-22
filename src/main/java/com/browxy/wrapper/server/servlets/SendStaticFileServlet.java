@@ -14,9 +14,11 @@ public class SendStaticFileServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private String staticFilePath;
-
-	public SendStaticFileServlet(String staticFilePath) {
+    private String entryPoint;
+    
+	public SendStaticFileServlet(String staticFilePath, String entryPoint) {
 		this.staticFilePath = staticFilePath;
+		this.entryPoint = entryPoint;
 	}
 
 	@Override
@@ -32,7 +34,10 @@ public class SendStaticFileServlet extends HttpServlet {
 		if (staticFile.exists()) {
 			resp.setContentType("text/html");
 			resp.setStatus(HttpServletResponse.SC_OK);
-			resp.getWriter().write(new String(Files.readAllBytes(staticFile.toPath())));
+			String html = new String(Files.readAllBytes(staticFile.toPath()));
+			html = html.replace("%%SOCKET_PORT%%", System.getProperty("PORT"))
+			.replace("%%ENTRY_POINT%%", this.entryPoint);
+			resp.getWriter().write(html);
 		} else {
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Static file not found");
 		}

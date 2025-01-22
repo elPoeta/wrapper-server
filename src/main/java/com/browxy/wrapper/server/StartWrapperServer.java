@@ -83,13 +83,13 @@ public class StartWrapperServer {
 		ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		servletContextHandler.addServlet(
 				new ServletHolder(new SendStaticFileServlet(
-						basePath + File.separator + config.getStaticDir() + File.separator + config.getStaticFile())),
+						basePath + File.separator + config.getStaticDir() + File.separator + config.getStaticFile(), config.getEntryPoint())),
 				"/*");
 		servletContextHandler.addServlet(new ServletHolder(new FileUploadServlet(config.getStorage())),
 				"/api/v1/upload");
 		servletContextHandler.addServlet(new ServletHolder(new GetAssetServlet(config.getStorage())),
 				"/api/v1/getAsset");
-		servletContextHandler.addServlet(new ServletHolder(new FileReaderServlet(basePath + config.getBuilderPages())),
+		servletContextHandler.addServlet(new ServletHolder(new FileReaderServlet(basePath)),
 				"/api/v1/readFile");
 		servletContextHandler.setContextPath("/");
 		return servletContextHandler;

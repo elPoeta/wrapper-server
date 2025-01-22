@@ -19,36 +19,41 @@ import com.google.gson.JsonObject;
 public class FileReaderServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(FileReaderServlet.class);
-    private String basePath;
-    
+	private String basePath;
+
 	public FileReaderServlet(String basePath) {
-	  this.basePath = basePath;	
+		this.basePath = basePath;
 	}
-	
+
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		response.setContentType("application/json;charset=UTF-8");
 		try {
 			String file = request.getParameter("file");
+			logger.debug("[read file ",file);
 			if (file == null || file.trim().isEmpty()) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-						getResponseMesage("Request does not contain file", 404));
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.getWriter().write(getResponseMessage("Request does not contain file", 404));
 			}
-            String fullPath = this.basePath + File.separator + file; 
+			String path = request.getParameter("path");
+			String fullPath = path == null || path.trim().isEmpty() ? this.basePath + File.separator + file
+					: this.basePath + File.separator + path + File.separator + file;
 			String content = FileManager.readFile(fullPath, "UTF-8");
 			JsonObject json = new JsonObject();
 			json.addProperty("statusCode", 200);
 			json.addProperty("content", content);
+			response.setStatus(HttpServletResponse.SC_OK);
 			response.getWriter().write(new Gson().toJson(json));
 
 		} catch (Exception e) {
 			logger.error("FileReader error ", e);
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, getResponseMesage("Error reading file", 404));
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().write(getResponseMessage("Error reading file", 404));
 		}
 	}
 
-	private String getResponseMesage(String message, int statusCode) {
+	private String getResponseMessage(String message, int statusCode) {
 		StatusMessageResponse messageResponse = StatusMessageResponse.getInstance();
 		messageResponse.setStatusCode(statusCode);
 		messageResponse.setMessage(message);
