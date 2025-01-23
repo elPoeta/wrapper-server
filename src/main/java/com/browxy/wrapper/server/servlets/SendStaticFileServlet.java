@@ -13,10 +13,12 @@ public class SendStaticFileServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
+	private String staticDirPath;
 	private String staticFilePath;
-    private String entryPoint;
-    
-	public SendStaticFileServlet(String staticFilePath, String entryPoint) {
+	private String entryPoint;
+
+	public SendStaticFileServlet(String staticDirPath, String staticFilePath, String entryPoint) {
+		this.staticDirPath = staticDirPath;
 		this.staticFilePath = staticFilePath;
 		this.entryPoint = entryPoint;
 	}
@@ -28,17 +30,21 @@ public class SendStaticFileServlet extends HttpServlet {
 			req.getRequestDispatcher(req.getRequestURI()).forward(req, resp);
 			return;
 		}
-
-		File staticFile = new File(this.staticFilePath);
-
-		if (staticFile.exists()) {
-			resp.setContentType("text/html");
+		String filePath = requestUri.startsWith("/assets") ? this.staticDirPath + requestUri
+				: this.staticDirPath + File.separator + this.staticFilePath;
+		File file = new File(filePath);
+		String mimeType = Files.probeContentType(file.toPath());
+		if (file.exists()) {
+			String content = new String(Files.readAllBytes(file.toPath()));
+			if (mimeType.equals("text/html")) {
+				content = content.replace("%%SOCKET_PORT%%", System.getProperty("PORT")).replace("%%ENTRY_POINT%%",
+						this.entryPoint);
+			}
+			resp.setContentType(mimeType);
 			resp.setStatus(HttpServletResponse.SC_OK);
-			String html = new String(Files.readAllBytes(staticFile.toPath()));
-			html = html.replace("%%SOCKET_PORT%%", System.getProperty("PORT"))
-			.replace("%%ENTRY_POINT%%", this.entryPoint);
-			resp.getWriter().write(html);
+			resp.getWriter().write(content);
 		} else {
+			resp.setContentType("text/html");
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Static file not found");
 		}
 	}
