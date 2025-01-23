@@ -1,10 +1,10 @@
-package com.browxy.wrapper.response;
+package com.browxy.wrapper.message;
 
-public class ResponseBuilder {
+public class SocketMessage {
 	private String payload;
 	private String type;
 
-	public ResponseBuilder(String payload, String type) {
+	public SocketMessage(String payload, String type) {
 		this.payload = payload;
 		this.type = type;
 	}

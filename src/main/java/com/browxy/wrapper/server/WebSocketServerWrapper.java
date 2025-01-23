@@ -5,7 +5,7 @@ import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.browxy.wrapper.response.ResponseBuilder;
+import com.browxy.wrapper.message.SocketMessage;
 import com.browxy.wrapper.response.ResponseHandler;
 import com.browxy.wrapper.status.StatusMessageResponse;
 import com.google.gson.Gson;
@@ -43,7 +43,7 @@ public class WebSocketServerWrapper extends WebSocketServer {
 	@Override
 	public void onMessage(WebSocket conn, String message) {
 		logger.info(message);
-		ResponseBuilder responseBuilder = this.gson.fromJson(message, ResponseBuilder.class);
+		SocketMessage responseBuilder = this.gson.fromJson(message, SocketMessage.class);
 		ResponseHandler responseHandler = new ResponseHandler(responseBuilder.getPayload());
 		String result = this.buildResponse(responseHandler, responseBuilder.getType());
 
@@ -66,7 +66,7 @@ public class WebSocketServerWrapper extends WebSocketServer {
 	}
 
 	private String buildResponse(ResponseHandler responseHandler, String type) {
-		ResponseBuilder responseBuilder = new ResponseBuilder(responseHandler.getResponse(), type);
-		return this.gson.toJson(responseBuilder, ResponseBuilder.class);
+		SocketMessage responseBuilder = new SocketMessage(responseHandler.getResponse(), type);
+		return this.gson.toJson(responseBuilder, SocketMessage.class);
 	}
 }
