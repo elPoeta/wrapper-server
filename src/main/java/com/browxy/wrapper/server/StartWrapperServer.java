@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.browxy.wrapper.server.config.Config;
 import com.browxy.wrapper.server.config.PropertiesReader;
+import com.browxy.wrapper.server.servlets.DownloadAssetServlet;
 import com.browxy.wrapper.server.servlets.FileReaderServlet;
 import com.browxy.wrapper.server.servlets.FileUploadServlet;
 import com.browxy.wrapper.server.servlets.GetAssetServlet;
@@ -89,6 +90,8 @@ public class StartWrapperServer {
 				"/api/v1/upload");
 		servletContextHandler.addServlet(new ServletHolder(new GetAssetServlet(config.getStorage())),
 				"/api/v1/getAsset");
+		servletContextHandler.addServlet(new ServletHolder(new DownloadAssetServlet(config.getStorage())),
+				"/api/v1/downloadAsset");
 		servletContextHandler.addServlet(new ServletHolder(new FileReaderServlet(basePath)), "/api/v1/readFile");
 		servletContextHandler.setContextPath("/");
 		return servletContextHandler;
