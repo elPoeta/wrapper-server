@@ -9,10 +9,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SendStaticFileServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-
+	private static final Logger logger = LoggerFactory.getLogger(SendStaticFileServlet.class);
+	
 	private String staticDirPath;
 	private String staticFilePath;
 	private String entryPoint;
@@ -30,22 +34,31 @@ public class SendStaticFileServlet extends HttpServlet {
 			req.getRequestDispatcher(req.getRequestURI()).forward(req, resp);
 			return;
 		}
-		String filePath = requestUri.startsWith("/assets") ? this.staticDirPath + requestUri
-				: this.staticDirPath + File.separator + this.staticFilePath;
-		File file = new File(filePath);
-		String mimeType = Files.probeContentType(file.toPath());
-		if (file.exists()) {
-			String content = new String(Files.readAllBytes(file.toPath()));
-			if (mimeType.equals("text/html")) {
-				content = content.replace("%%SOCKET_PORT%%", System.getProperty("PORT")).replace("%%ENTRY_POINT%%",
-						this.entryPoint);
+		try {
+			String filePath = requestUri.startsWith("/assets") ? this.staticDirPath + requestUri
+					: this.staticDirPath + File.separator + this.staticFilePath;
+			File file = new File(filePath);
+			String mimeType = Files.probeContentType(file.toPath());
+			if (file.exists()) {
+				String content = new String(Files.readAllBytes(file.toPath()));
+				if (mimeType.equals("text/html")) {
+					content = content.replace("%%SOCKET_PORT%%", System.getProperty("PORT")).replace("%%ENTRY_POINT%%",
+							this.entryPoint);
+				}
+				resp.setContentType(mimeType);
+				resp.setStatus(HttpServletResponse.SC_OK);
+				resp.getWriter().write(content);
+			} else {
+				resp.setContentType("text/html");
+				resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Static file not found");
 			}
-			resp.setContentType(mimeType);
-			resp.setStatus(HttpServletResponse.SC_OK);
-			resp.getWriter().write(content);
-		} else {
+		} catch (Exception e) {
+			logger.error("unable to send static content",e);
 			resp.setContentType("text/html");
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Static file not found");
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND, "unable to send static content");
+		} finally {
+			resp.flushBuffer();
+			resp.getWriter().close();
 		}
 	}
 

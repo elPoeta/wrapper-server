@@ -71,6 +71,8 @@ public class FileUploadServlet extends HttpServlet {
 		} finally {
 			response.setStatus(code == 200 ? HttpServletResponse.SC_OK : HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write(ResponseMessageUtil.getStatusMessage(message, code));
+			response.flushBuffer();
+			response.getWriter().close();
 		}
 	}
 }

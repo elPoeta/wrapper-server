@@ -60,6 +60,9 @@ public class FileReaderServlet extends HttpServlet {
 			logger.error("FileReader error ", e);
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			response.getWriter().write(ResponseMessageUtil.getStatusMessage("Error reading file", 400));
+		} finally {
+			response.flushBuffer();
+			response.getWriter().close();
 		}
 	}
 
