@@ -12,11 +12,12 @@ public class PropertiesReader {
 
 	private static Config config;
 
-	public static Config read(String resource) {
+	public static Config read() {
+		String resource = System.getProperty("dev") == null ? "resource.server.properties"
+				: "resource.server.dev.properties";
 		Properties properties = new Properties();
 
-		try (InputStream inputStream = PropertiesReader.class.getClassLoader()
-				.getResourceAsStream(resource)) {
+		try (InputStream inputStream = PropertiesReader.class.getClassLoader().getResourceAsStream(resource)) {
 			if (inputStream != null) {
 				properties.load(inputStream);
 				config = new Config(properties);
