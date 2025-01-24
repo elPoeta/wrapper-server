@@ -3,6 +3,8 @@ package com.browxy.wrapper.server.servlets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.browxy.wrapper.fileUtils.MimeTypeUtil;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +14,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
 
 public class GetAssetServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -48,7 +49,7 @@ public class GetAssetServlet extends HttpServlet {
 		InputStream is = null;
 		try {
 			is = new FileInputStream(file);
-			String mimeType = Files.probeContentType(file.toPath());
+			String mimeType = MimeTypeUtil.getMimeTypeByFileName(file.getName());
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.setContentLengthLong(file.length());
 			response.setHeader("Access-Control-Allow-Origin", "*");

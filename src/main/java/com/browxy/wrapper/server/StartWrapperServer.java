@@ -29,7 +29,9 @@ public class StartWrapperServer {
 		if (!validationSystemProps.isValid()) {
 			throw new RuntimeException(validationSystemProps.getMessage());
 		}
-		Config config = PropertiesReader.read();
+		String resource = System.getProperty("dev") == null ? "resource.server.properties"
+				: "resource.server.dev.properties";
+		Config config = PropertiesReader.read(resource);
 		if (config == null) {
 			throw new RuntimeException("Server config not loaded...");
 		}
