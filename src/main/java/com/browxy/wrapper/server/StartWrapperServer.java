@@ -29,13 +29,14 @@ public class StartWrapperServer {
 		if (!validationSystemProps.isValid()) {
 			throw new RuntimeException(validationSystemProps.getMessage());
 		}
-		
+
 		Config config = PropertiesReader.read();
 		
 		if (config == null) {
 			throw new RuntimeException("Server config not loaded...");
 		}
 		String containerBasePath = System.getProperty("containerBasePath");
+		System.setProperty("java.class.path", containerBasePath + File.separator + "target/classes");
 
 		Thread jettyThread = new Thread(() -> startJettyServer(config, containerBasePath));
 		jettyThread.start();

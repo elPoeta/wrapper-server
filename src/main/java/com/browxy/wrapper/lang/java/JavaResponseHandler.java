@@ -1,12 +1,10 @@
 package com.browxy.wrapper.lang.java;
 
 import java.io.File;
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.browxy.wrapper.lang.CompilerCode;
+import com.browxy.wrapper.lang.CustomClassLoader;
 import com.browxy.wrapper.message.JavaMessage;
 import com.browxy.wrapper.message.Message;
 import com.browxy.wrapper.response.ResponseMessage;
@@ -44,8 +43,8 @@ public class JavaResponseHandler implements ResponseMessage {
 		if (userClass == null) {
 			String containerBasePath = System.getProperty("containerBasePath");
 			File userCodeFile = new File(containerBasePath + message.getUserCodePath());
-			return ResponseMessageUtil.getStatusMessage(
-					"Failed to load user code. File: " + userCodeFile.getAbsolutePath());
+			return ResponseMessageUtil
+					.getStatusMessage("Failed to load user code. File: " + userCodeFile.getAbsolutePath());
 		}
 
 		try {
@@ -67,34 +66,23 @@ public class JavaResponseHandler implements ResponseMessage {
 
 			lastModified = userCodeFile.lastModified();
 
-			boolean compiled = this.compilerCode.compileUserCode(this.message);
+			CompilerResultJava compilerResult = (CompilerResultJava) this.compilerCode.compileUserCode(this.message);
 
-			if (!compiled) {
+			if (!compilerResult.isSuccess()) {
 				logger.error("Error compiling user code.");
 				return null;
 			}
 
-			URLClassLoader classLoader = null;
 			try {
 				File targetDir = new File(containerBasePath + "/target/classes");
 
-				classLoader = new URLClassLoader(new URL[] { targetDir.toURI().toURL() },
-						this.getClass().getClassLoader());
-
+				CustomClassLoader classLoader = CustomClassLoader.createClassLoader(targetDir,
+						this.getClass().getClassLoader(), compilerResult.getDependencyJars());
 				cachedUserClass = classLoader.loadClass(message.getClassToLoad());
 			} catch (ClassNotFoundException | MalformedURLException e) {
 				e.printStackTrace();
 				logger.error("Error loading user class", e);
 				return null;
-			} finally {
-				if (classLoader != null) {
-					try {
-						classLoader.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-						logger.error("Error close classLoader", e);
-					}
-				}
 			}
 		}
 
@@ -164,20 +152,26 @@ public class JavaResponseHandler implements ResponseMessage {
 				argumentTypes.add(Object.class);
 			}
 		}
+		try {
+			Class<?>[] parameterTypes = argumentTypes.toArray(new Class[0]);
 
-		Class<?>[] parameterTypes = argumentTypes.toArray(new Class[0]);
+			Method method = clazz.getDeclaredMethod(methodName, parameterTypes);
+			method.setAccessible(true);
 
-		Method method = clazz.getDeclaredMethod(methodName, parameterTypes);
-		method.setAccessible(true);
+			Object instance = null;
+			if (!Modifier.isStatic(method.getModifiers())) {
+				instance = clazz.getDeclaredConstructor().newInstance();
+			}
 
-		Object instance = null;
-		if (!Modifier.isStatic(method.getModifiers())) {
-			instance = clazz.getDeclaredConstructor().newInstance();
+			Object result = method.invoke(instance, arguments.toArray());
+
+			return result != null ? result.toString() : "null";
+		} catch (InvocationTargetException e) {
+			logger.error("error target invocation", e);
+		} catch (Exception e) {
+			logger.error("error call method", e);
 		}
-
-		Object result = method.invoke(instance, arguments.toArray());
-
-		return result != null ? result.toString() : "null";
+		return "null";
 	}
 
 	private JsonArray validateAndParseJsonArray(String argumentsJson) {

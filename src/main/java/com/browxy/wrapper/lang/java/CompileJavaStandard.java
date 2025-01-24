@@ -2,6 +2,7 @@ package com.browxy.wrapper.lang.java;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.tools.JavaCompiler;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.browxy.wrapper.lang.CompilerCode;
+import com.browxy.wrapper.lang.CompilerResult;
 import com.browxy.wrapper.message.JavaMessage;
 import com.browxy.wrapper.message.Message;
 
@@ -18,25 +20,25 @@ public class CompileJavaStandard implements CompilerCode {
 	private static final Logger logger = LoggerFactory.getLogger(CompileJavaStandard.class);
 
 	@Override
-	public boolean compileUserCode(Message message) {
+	public CompilerResult compileUserCode(Message message) {
 		JavaMessage javaMessage = (JavaMessage) message;
 		String containerBasePath = System.getProperty("containerBasePath");
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) {
 			logger.error("No Java compiler found.");
-			return false;
+			return new CompilerResultJava(false, Collections.emptyList());
 		}
-		
+
 		String targetDirectory = containerBasePath + "/target/classes";
 		String libDirectory = containerBasePath + "/libraries";
-		String filePath = containerBasePath + "" + javaMessage.getUserCodePath(); 
+		String filePath = containerBasePath + "" + javaMessage.getUserCodePath();
 		createDirectory(targetDirectory);
-		
+
 		String classpath = getClasspathFromLibDirectory(libDirectory);
 		String[] compileOptions = new String[] { "-d", targetDirectory, "-classpath", classpath, filePath };
 
 		int result = compiler.run(null, null, null, compileOptions);
-		return result == 0;
+		return new CompilerResultJava(result == 0, Collections.emptyList());
 	}
 
 	private String getClasspathFromLibDirectory(String libDirectory) {
