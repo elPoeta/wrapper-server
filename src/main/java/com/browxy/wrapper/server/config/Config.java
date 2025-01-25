@@ -11,9 +11,12 @@ public class Config {
 
 	public Config(Properties properties) {
 		this.port = Integer.parseInt(properties.getProperty("server.port"));
-		this.staticDir = properties.getProperty("server.staticDir");
-		this.staticFile = properties.getProperty("server.staticFile");
-		this.entryPoint = properties.getProperty("server.entryPoint");
+		this.staticDir = System.getenv("STATIC_DIR") != null ? System.getenv("STATIC_DIR")
+				: properties.getProperty("server.staticDir");
+		this.staticFile = System.getenv("STATIC_FILE") != null ? System.getenv("STATIC_FILE")
+				: properties.getProperty("server.staticFile");
+		this.entryPoint = System.getenv("ENTRY_POINT") != null ? System.getenv("ENTRY_POINT")
+				: properties.getProperty("server.entryPoint");
 		this.storage = properties.getProperty("server.storage");
 	}
 

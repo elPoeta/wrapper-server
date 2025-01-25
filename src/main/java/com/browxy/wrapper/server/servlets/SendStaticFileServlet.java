@@ -41,10 +41,13 @@ public class SendStaticFileServlet extends HttpServlet {
 					: this.staticDirPath + File.separator + this.staticFilePath;
 			File file = new File(filePath);
 			String mimeType = MimeTypeUtil.getMimeTypeByFileName(file.getName());
-        	if (file.exists()) {
+			if (file.exists()) {
 				String content = new String(Files.readAllBytes(file.toPath()));
 				if (mimeType.equals("text/html")) {
-					content = content.replace("%%SOCKET_PORT%%", System.getProperty("PORT")).replace("%%ENTRY_POINT%%",
+					String hostSocketPort = System.getenv("HOST_SOCKET_PORT") != null
+							? System.getenv("HOST_SOCKET_PORT")
+							: System.getProperty("PORT");
+					content = content.replace("%%SOCKET_PORT%%", hostSocketPort).replace("%%ENTRY_POINT%%",
 							this.entryPoint);
 				}
 				resp.setContentType(mimeType);
