@@ -7,7 +7,7 @@ public class ProjectConfig {
 	private int socketPort;
 	private String entryPoint;
 	private JsonObject properties;
-	private JsonArray page;
+	private JsonArray pages;
 
 	public int getSocketPort() {
 		return socketPort;
@@ -33,12 +33,12 @@ public class ProjectConfig {
 		this.properties = properties;
 	}
 
-	public JsonArray getPage() {
-		return page;
+	public JsonArray getPages() {
+		return pages;
 	}
 
-	public void setPage(JsonArray page) {
-		this.page = page;
+	public void setPage(JsonArray pages) {
+		this.pages = pages;
 	}
 
 }

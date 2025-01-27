@@ -12,7 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.browxy.wrapper.fileUtils.FileManager;
 import com.browxy.wrapper.fileUtils.MimeTypeUtil;
+import com.browxy.wrapper.server.config.project.ProjectConfig;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 public class SendStaticFileServlet extends HttpServlet {
 
@@ -64,12 +69,24 @@ public class SendStaticFileServlet extends HttpServlet {
 	}
 
 	private String buildHtmlProjectMetadata(String content) {
-		String hostSocketPort = System.getenv("HOST_SOCKET_PORT") != null
-				? System.getenv("HOST_SOCKET_PORT")
-				: System.getProperty("PORT");
-		content = content.replace("%%SOCKET_PORT%%", hostSocketPort).replace("%%ENTRY_POINT%%",
-				this.entryPoint);
-		
-		return content;
+		ProjectConfig projectConfig = null;
+        Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
+		try {
+			String containerBasePath = System.getProperty("containerBasePath");
+			String path = containerBasePath + File.separator + "metadata" + File.separator + "project.json";
+			String metadata = FileManager.readFile(path, "UTF-8");
+			projectConfig = gson.fromJson(metadata, ProjectConfig.class);
+			String hostSocketPort = System.getenv("HOST_SOCKET_PORT") != null ? System.getenv("HOST_SOCKET_PORT")
+					: System.getProperty("PORT");
+            projectConfig.setSocketPort(Integer.parseInt(hostSocketPort));
+            projectConfig.setEntryPoint(this.entryPoint);
+		    
+		} catch (Exception e) {
+			logger.error("unable to build project metatdata content", e);
+		}
+		String conf = projectConfig != null
+				? gson.toJson(projectConfig)
+				: gson.toJson(new JsonObject());
+		return content.replace("%%__CONFIG__%%", conf);
 	}
 }
