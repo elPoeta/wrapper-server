@@ -44,11 +44,7 @@ public class SendStaticFileServlet extends HttpServlet {
 			if (file.exists()) {
 				String content = new String(Files.readAllBytes(file.toPath()));
 				if (mimeType.equals("text/html")) {
-					String hostSocketPort = System.getenv("HOST_SOCKET_PORT") != null
-							? System.getenv("HOST_SOCKET_PORT")
-							: System.getProperty("PORT");
-					content = content.replace("%%SOCKET_PORT%%", hostSocketPort).replace("%%ENTRY_POINT%%",
-							this.entryPoint);
+					content = buildHtmlProjectMetadata(content);
 				}
 				resp.setContentType(mimeType);
 				resp.setStatus(HttpServletResponse.SC_OK);
@@ -67,4 +63,13 @@ public class SendStaticFileServlet extends HttpServlet {
 		}
 	}
 
+	private String buildHtmlProjectMetadata(String content) {
+		String hostSocketPort = System.getenv("HOST_SOCKET_PORT") != null
+				? System.getenv("HOST_SOCKET_PORT")
+				: System.getProperty("PORT");
+		content = content.replace("%%SOCKET_PORT%%", hostSocketPort).replace("%%ENTRY_POINT%%",
+				this.entryPoint);
+		
+		return content;
+	}
 }
