@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CustomClassLoader extends URLClassLoader {
@@ -54,5 +55,20 @@ public class CustomClassLoader extends URLClassLoader {
 
 		return classLoader;
 	}
-}
 
+	public static List<String> getClasspathFromLibDirectory(String libDirectory) {
+		List<String> jarFiles = new ArrayList<>();
+		File libDir = new File(libDirectory);
+		if (libDir.exists() && libDir.isDirectory()) {
+			File[] files = libDir.listFiles((dir, name) -> name.endsWith(".jar"));
+
+			if (files != null) {
+				for (File file : files) {
+					jarFiles.add(file.getAbsolutePath());
+				}
+			}
+		}
+
+		return jarFiles;
+	}
+}
