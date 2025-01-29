@@ -19,6 +19,8 @@ import com.browxy.wrapper.server.servlets.DownloadAssetServlet;
 import com.browxy.wrapper.server.servlets.FileReaderServlet;
 import com.browxy.wrapper.server.servlets.FileUploadServlet;
 import com.browxy.wrapper.server.servlets.GetAssetServlet;
+import com.browxy.wrapper.server.servlets.GetSessionServlet;
+import com.browxy.wrapper.server.servlets.LoginServlet;
 import com.browxy.wrapper.server.servlets.SendStaticFileServlet;
 
 public class StartWrapperServer {
@@ -31,7 +33,7 @@ public class StartWrapperServer {
 		}
 
 		Config config = PropertiesReader.read();
-		
+
 		if (config == null) {
 			throw new RuntimeException("Server config not loaded...");
 		}
@@ -85,6 +87,7 @@ public class StartWrapperServer {
 	private static ServletContextHandler getServletHandler(Config config) {
 		String basePath = System.getProperty("containerBasePath");
 		ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		servletContextHandler.getSessionHandler().setMaxInactiveInterval(60 * 60);
 		servletContextHandler.addServlet(
 				new ServletHolder(new SendStaticFileServlet(basePath + File.separator + config.getStaticDir(),
 						config.getStaticFile(), config.getEntryPoint())),
@@ -96,6 +99,8 @@ public class StartWrapperServer {
 		servletContextHandler.addServlet(new ServletHolder(new DownloadAssetServlet(config.getStorage())),
 				"/api/v1/downloadAsset");
 		servletContextHandler.addServlet(new ServletHolder(new FileReaderServlet(basePath)), "/api/v1/readFile");
+		servletContextHandler.addServlet(new ServletHolder(new GetSessionServlet()), "/api/v1/getSession");
+		servletContextHandler.addServlet(new ServletHolder(new LoginServlet()), "/api/v1/login");
 		servletContextHandler.setContextPath("/");
 		return servletContextHandler;
 	}
