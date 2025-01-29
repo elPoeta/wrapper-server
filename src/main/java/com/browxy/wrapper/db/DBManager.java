@@ -44,7 +44,7 @@ public class DBManager {
 
 	public DBManager(String userName, String password, String DBUrl, String dbName) {
 		try {
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			//Class.forName("com.mysql.jdbc.Driver").newInstance();
 			this.userName = userName;
 			this.password = password;
 			this.DBUrl = DBUrl;

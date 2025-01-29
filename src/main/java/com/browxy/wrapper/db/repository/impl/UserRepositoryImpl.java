@@ -15,6 +15,9 @@ public class UserRepositoryImpl extends GenericRepositoryImpl<User, Long> {
 
 	    @Override
 	    protected User mapRowToEntity(Map<String, String> row) {
+	    	if(row == null) {
+	    		return null;
+	    	}
 	        User user = new User();
 	        user.setId(Long.parseLong(row.get("id")));
 	        user.setEmail(row.get("email"));
