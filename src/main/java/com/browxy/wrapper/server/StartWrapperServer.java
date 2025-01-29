@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.browxy.wrapper.server.config.Config;
-import com.browxy.wrapper.server.config.PropertiesReader;
 import com.browxy.wrapper.server.servlets.DownloadAssetServlet;
 import com.browxy.wrapper.server.servlets.FileReaderServlet;
 import com.browxy.wrapper.server.servlets.FileUploadServlet;
@@ -32,7 +31,7 @@ public class StartWrapperServer {
 			throw new RuntimeException(validationSystemProps.getMessage());
 		}
 
-		Config config = PropertiesReader.read();
+		Config config = Config.getInstance();
 
 		if (config == null) {
 			throw new RuntimeException("Server config not loaded...");
