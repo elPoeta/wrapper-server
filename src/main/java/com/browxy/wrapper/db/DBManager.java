@@ -403,7 +403,7 @@ public class DBManager {
 					String columnName = filter.getKey();
 					Map<String, String> conditionValue = filter.getValue();
 					String condition = conditionValue.get("condition");
-					String value = conditionValue.get("value");
+					//String value = conditionValue.get("value");
 					queryBuilder.append(columnName).append(" ").append(condition).append(" ?");
 					filterIndex++;
 				}
