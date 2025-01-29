@@ -157,4 +157,9 @@ public class Config {
 	public void setDataSourcePassword(String password) {
 		configValues.put("datasource.password", password);
 	}
+
+	public String getDataSourceUrl(String connector, String encoding) {
+		return connector + "://" + getDataSourceIp() + "/" + getDataSourceDbName() + "?characterEncoding=" + encoding;
+	
+	}		
 }
