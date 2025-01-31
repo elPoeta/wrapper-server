@@ -59,6 +59,7 @@ public class FileUploadServlet extends HttpServlet {
 					String filePath = path + File.separator + fileName;
 					File storeFile = new File(filePath);
 					item.write(storeFile);
+					FileManager.setPermissions(filePath);
 				}
 			}
 			code = 200;
