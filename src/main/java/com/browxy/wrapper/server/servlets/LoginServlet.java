@@ -1,6 +1,8 @@
 package com.browxy.wrapper.server.servlets;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -37,17 +39,22 @@ public class LoginServlet extends HttpServlet {
 		JsonObject json = new JsonObject();
 		try {
 			String body = request.getReader().readLine();
-
+			
 			User user = gson.fromJson(body, User.class);
 			Config config = Config.getInstance();
+			
 			DBManager dbManager = DBManager.getInstance(config.getDataSourceUserName(), config.getDataSourcePassword(),
 					config.getDataSourceUrl("jdbc:mysql", "UTF-8"), config.getDataSourceDbName());
         
 			UserRepositoryImpl userRepository = new UserRepositoryImpl(dbManager);
 	        UserServiceImpl userService = new UserServiceImpl(userRepository);
 	        
-	        User userDb = userService.getById(user.getId());
-	        if(userDb == null || userDb.getPassword() != user.getPassword()) {
+	        List<User> users =  userService.getByCustom("SELECT * from users where email = ?", Arrays.asList(user.getEmail()), true);
+	        User userDb = null;
+	        if(!users.isEmpty()) {
+	        	userDb = users.get(0);
+	        }
+	        if(userDb == null || !userDb.getPassword().equals(user.getPassword())) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 	    		response.getWriter().write(ResponseMessageUtil.getStatusMessage("Bad credentials", 400));
 	        	return;

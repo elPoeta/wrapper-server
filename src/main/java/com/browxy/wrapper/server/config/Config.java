@@ -161,5 +161,12 @@ public class Config {
 	public String getDataSourceUrl(String connector, String encoding) {
 		return connector + "://" + getDataSourceIp() + "/" + getDataSourceDbName() + "?characterEncoding=" + encoding;
 	
+	}
+
+	@Override
+	public String toString() {
+		return "Config [configValues=" + configValues + "]";
 	}		
+	
+	
 }
