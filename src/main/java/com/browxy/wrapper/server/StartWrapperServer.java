@@ -19,7 +19,7 @@ import com.browxy.wrapper.server.servlets.FileReaderServlet;
 import com.browxy.wrapper.server.servlets.FileUploadServlet;
 import com.browxy.wrapper.server.servlets.GetAssetServlet;
 import com.browxy.wrapper.server.servlets.GetSessionServlet;
-import com.browxy.wrapper.server.servlets.LoginServlet;
+import com.browxy.wrapper.server.servlets.AuthServlet;
 import com.browxy.wrapper.server.servlets.SendStaticFileServlet;
 
 public class StartWrapperServer {
@@ -99,7 +99,7 @@ public class StartWrapperServer {
 				"/api/v1/downloadAsset");
 		servletContextHandler.addServlet(new ServletHolder(new FileReaderServlet(basePath)), "/api/v1/readFile");
 		servletContextHandler.addServlet(new ServletHolder(new GetSessionServlet()), "/api/v1/getSession");
-		servletContextHandler.addServlet(new ServletHolder(new LoginServlet()), "/api/v1/login");
+		servletContextHandler.addServlet(new ServletHolder(new AuthServlet()), "/api/v1/auth");
 		servletContextHandler.setContextPath("/");
 		return servletContextHandler;
 	}

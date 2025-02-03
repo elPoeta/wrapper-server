@@ -22,44 +22,78 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-public class LoginServlet extends HttpServlet {
+public class AuthServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger logger = LoggerFactory.getLogger(LoginServlet.class);
+	private static final Logger logger = LoggerFactory.getLogger(AuthServlet.class);
 
 	private Gson gson;
 
-	public LoginServlet() {
+	public AuthServlet() {
 		this.gson = new GsonBuilder().disableHtmlEscaping().serializeNulls().create();
 	}
 
 	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+	    JsonObject json = new JsonObject();
+	    response.setContentType("application/json");  
+	    try {
+	        HttpSession session = request.getSession(false);
+	        if (session != null) {
+	            session.removeAttribute("user");  
+	        }
+	        response.setStatus(HttpServletResponse.SC_OK);
+	        json.addProperty("statusCode", 200);
+	        response.getWriter().write(new Gson().toJson(json));
+
+	    } catch (Exception e) {
+	        logger.error("Error processing session", e);
+	        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+	        try {
+	            response.getWriter().write(ResponseMessageUtil.getStatusMessage("Error reading session", 400));
+	        } catch (IOException e1) {
+	            logger.error("Error writing response", e1);
+	        }
+	    } finally {
+	        try {
+	            response.flushBuffer();
+	            response.getWriter().close();
+	        } catch (IOException e) {
+	            logger.error("Error closing response", e);
+	        }
+	    }
+	}
+
+
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) {
 		JsonObject json = new JsonObject();
+		response.setContentType("application/json");  
 		try {
 			String body = request.getReader().readLine();
-			
+
 			User user = gson.fromJson(body, User.class);
 			Config config = Config.getInstance();
-			
+
 			DBManager dbManager = DBManager.getInstance(config.getDataSourceUserName(), config.getDataSourcePassword(),
 					config.getDataSourceUrl("jdbc:mysql", "UTF-8"), config.getDataSourceDbName());
-        
+
 			UserRepositoryImpl userRepository = new UserRepositoryImpl(dbManager);
-	        UserServiceImpl userService = new UserServiceImpl(userRepository);
-	        
-	        List<User> users =  userService.getByCustom("SELECT * from users where email = ?", Arrays.asList(user.getEmail()), true);
-	        User userDb = null;
-	        if(!users.isEmpty()) {
-	        	userDb = users.get(0);
-	        }
-	        if(userDb == null || !userDb.getPassword().equals(user.getPassword())) {
+			UserServiceImpl userService = new UserServiceImpl(userRepository);
+
+			List<User> users = userService.getByCustom("SELECT * from users where email = ?",
+					Arrays.asList(user.getEmail()), true);
+			User userDb = null;
+			if (!users.isEmpty()) {
+				userDb = users.get(0);
+			}
+			if (userDb == null || !userDb.getPassword().equals(user.getPassword())) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-	    		response.getWriter().write(ResponseMessageUtil.getStatusMessage("Bad credentials", 400));
-	        	return;
-	        }
-	        userDb.setPassword("");
+				response.getWriter().write(ResponseMessageUtil.getStatusMessage("Bad credentials", 400));
+				return;
+			}
+			userDb.setPassword("");
 			HttpSession session = request.getSession(true);
 			session.setAttribute("user", new Gson().toJson(userDb));
 			json.addProperty("statusCode", 200);
