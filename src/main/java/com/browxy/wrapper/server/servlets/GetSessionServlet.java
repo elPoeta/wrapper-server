@@ -27,15 +27,17 @@ public class GetSessionServlet extends HttpServlet {
 			response.setStatus(HttpServletResponse.SC_OK);
 			if (session != null) {
 				String user = (String) session.getAttribute("user");
-	            json.addProperty("statusCode", 200);
-				json.addProperty("user", user);
-				response.getWriter().write(new Gson().toJson(json));
-			} else {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				json.addProperty("statusCode", 404);
-				json.add("user", null);
-				response.getWriter().write("No session data found.");
+				if (user != null) {
+					json.addProperty("statusCode", 200);
+					json.addProperty("user", user);
+					response.getWriter().write(new Gson().toJson(json));
+					return;
+				}
 			}
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			json.addProperty("statusCode", 404);
+			json.add("user", null);
+			response.getWriter().write(new Gson().toJson(json));
 
 		} catch (Exception e) {
 			logger.error("get session error ", e);
