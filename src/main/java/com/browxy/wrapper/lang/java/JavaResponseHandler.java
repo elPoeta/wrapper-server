@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.browxy.wrapper.lang.CompilerCode;
 import com.browxy.wrapper.lang.CustomClassLoader;
+import com.browxy.wrapper.lang.InvokeResult;
 import com.browxy.wrapper.message.JavaMessage;
 import com.browxy.wrapper.message.Message;
 import com.browxy.wrapper.response.ResponseMessage;
@@ -41,8 +42,11 @@ public class JavaResponseHandler implements ResponseMessage {
 		}
 
 		try {
-			String result = callMethod(userClass, message.getMethod(), message.getArguments());
-			return result;
+			InvokeResult invokeResult = callMethod(userClass, message.getMethod(), message.getArguments());
+			if(invokeResult.hasError()) {
+				return ResponseMessageUtil.getStatusMessage(invokeResult.getMessage());
+			}
+			return invokeResult.getResult();
 
 		} catch (Exception e) {
 			logger.error("Error executing user code:", e);
@@ -82,7 +86,8 @@ public class JavaResponseHandler implements ResponseMessage {
 		return cachedUserClass;
 	}
 
-	public String callMethod(Class<?> clazz, String methodName, String argumentsJson) throws Exception {
+	public InvokeResult callMethod(Class<?> clazz, String methodName, String argumentsJson) throws Exception {
+		String message = "";
 		try {
 			ParseStringJavaArgs parseStringJavaArgs = new ParseStringJavaArgs(argumentsJson);
 			parseStringJavaArgs.parseArgs();
@@ -98,13 +103,16 @@ public class JavaResponseHandler implements ResponseMessage {
 
 			Object result = method.invoke(instance, parseStringJavaArgs.getArguments().toArray());
 
-			return result != null ? result.toString() : "null";
+			String res = result != null ? result.toString() : null;
+			return new InvokeResult(res, 200, message);
 		} catch (InvocationTargetException e) {
 			logger.error("error target invocation", e);
+			message = "error target invocation " + e.getMessage();
 		} catch (Exception e) {
 			logger.error("error call method", e);
+			message = "error call method " + e.getMessage();
 		}
-		return "null";
+		return new InvokeResult(null, 400, message);
 	}
 
 }
