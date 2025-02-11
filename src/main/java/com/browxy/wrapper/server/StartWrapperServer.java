@@ -26,30 +26,24 @@ public class StartWrapperServer {
 	private static final Logger logger = LoggerFactory.getLogger(StartWrapperServer.class);
 
 	public static void main(String[] args) throws Exception {
-		ValidationSystemProps validationSystemProps = validateSystemProperties();
-		if (!validationSystemProps.isValid()) {
-			throw new RuntimeException(validationSystemProps.getMessage());
-		}
-
 		Config config = Config.getInstance();
-
 		if (config == null) {
 			throw new RuntimeException("Server config not loaded...");
 		}
-		String containerBasePath = System.getProperty("containerBasePath");
+		String containerBasePath = config.getContainerBasePath();
 		System.setProperty("java.class.path", containerBasePath + File.separator + "target/classes");
 
 		Thread jettyThread = new Thread(() -> startJettyServer(config, containerBasePath));
 		jettyThread.start();
 
-		int webSocketPort = Integer.parseInt(System.getProperty("PORT"));
+		int webSocketPort = config.getSocketPort();
 		Thread webSocketThread = new Thread(() -> startWebSocketServer(webSocketPort));
 		webSocketThread.start();
 	}
 
 	private static void startJettyServer(Config config, String containerBasePath) {
 		try {
-			Server jettyServer = new Server(config.getPort());
+			Server jettyServer = new Server(config.getServerPort());
 			ServletContextHandler servletContextHandler = getServletHandler(config);
 
 			WebSocketHandler wsHandler = new WebSocketHandler() {
@@ -66,7 +60,7 @@ public class StartWrapperServer {
 			jettyServer.setHandler(handlers);
 
 			jettyServer.start();
-			logger.info("Jetty server started at http://localhost:" + config.getPort());
+			logger.info("Jetty server started at http://localhost:" + config.getSocketPort());
 			jettyServer.join();
 		} catch (Exception e) {
 			logger.error("Error starting Jetty server", e);
@@ -84,7 +78,7 @@ public class StartWrapperServer {
 	}
 
 	private static ServletContextHandler getServletHandler(Config config) {
-		String basePath = System.getProperty("containerBasePath");
+		String basePath = config.getContainerBasePath();
 		ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		servletContextHandler.getSessionHandler().setMaxInactiveInterval(60 * 60);
 		servletContextHandler.addServlet(
@@ -102,53 +96,6 @@ public class StartWrapperServer {
 		servletContextHandler.addServlet(new ServletHolder(new AuthServlet()), "/api/v1/auth");
 		servletContextHandler.setContextPath("/");
 		return servletContextHandler;
-	}
-
-	private static ValidationSystemProps validateSystemProperties() {
-		ValidationSystemProps validationSystemProps = new ValidationSystemProps();
-
-		if (System.getProperty("PORT") == null) {
-			validationSystemProps.setMessage("PORT not found.");
-		}
-
-		if (System.getProperty("containerBasePath") == null) {
-			validationSystemProps.setMessage("Container base path not found.");
-		}
-
-		if (System.getProperty("language") == null) {
-			validationSystemProps.setMessage("Language vm arg not found.");
-		}
-
-		if (validationSystemProps.getMessage().trim().isEmpty()) {
-			validationSystemProps.setValid(true);
-		}
-		return validationSystemProps;
-	}
-
-	private static class ValidationSystemProps {
-		private boolean valid;
-		private String message;
-
-		public ValidationSystemProps() {
-			this.valid = false;
-			this.message = "";
-		}
-
-		public void setValid(boolean valid) {
-			this.valid = valid;
-		}
-
-		public void setMessage(String message) {
-			this.message = message;
-		}
-
-		public boolean isValid() {
-			return valid;
-		}
-
-		public String getMessage() {
-			return message;
-		}
 	}
 
 }

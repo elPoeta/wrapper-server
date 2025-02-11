@@ -16,6 +16,7 @@ import com.browxy.wrapper.message.JavaMessage;
 import com.browxy.wrapper.message.Message;
 import com.browxy.wrapper.response.ResponseMessage;
 import com.browxy.wrapper.response.ResponseMessageUtil;
+import com.browxy.wrapper.server.config.Config;
 
 public class JavaResponseHandler implements ResponseMessage {
 	private static final Logger logger = LoggerFactory.getLogger(JavaResponseHandler.class);
@@ -35,7 +36,8 @@ public class JavaResponseHandler implements ResponseMessage {
 	public String handleClientRequest() {
 		Class<?> userClass = getCachedOrCompileUserClass();
 		if (userClass == null) {
-			String containerBasePath = System.getProperty("containerBasePath");
+			Config config = Config.getInstance();
+			String containerBasePath = config.getContainerBasePath();
 			File userCodeFile = new File(containerBasePath + message.getUserCodePath());
 			return ResponseMessageUtil
 					.getStatusMessage("Failed to load user code. File: " + userCodeFile.getAbsolutePath());
@@ -55,7 +57,8 @@ public class JavaResponseHandler implements ResponseMessage {
 	}
 
 	private Class<?> getCachedOrCompileUserClass() {
-		String containerBasePath = System.getProperty("containerBasePath");
+		Config config = Config.getInstance();
+		String containerBasePath = config.getContainerBasePath();
 		File userCodeFile = new File(containerBasePath + message.getUserCodePath());
 
 		if (cachedUserClass == null || userCodeFile.lastModified() > lastModified) {

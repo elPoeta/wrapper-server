@@ -30,6 +30,16 @@ public class Config {
 		configValues.put("server.entryPoint", System.getenv("ENTRY_POINT") != null ? System.getenv("ENTRY_POINT")
 				: properties.getProperty("server.entryPoint"));
 		configValues.put("server.storage", properties.getProperty("server.storage"));
+		
+		configValues.put("socket.port", properties.getProperty("socket.port"));	
+		configValues.put("container.basePath", properties.getProperty("container.basePath"));
+		configValues.put("container.mavenRepoPath", properties.getProperty("container.mavenRepoPath"));
+		configValues.put("container.mavenSettingsPath", properties.getProperty("container.mavenSettingsPath"));
+		configValues.put("socket.keystorePath", System.getenv("SOCKET_KEYSTORE_PATH") != null ? System.getenv("SOCKET_KEYSTORE_PATH") : "");
+		configValues.put("socket.keystorePassword", System.getenv("SOCKET_KEYSTORE_PASSWORD") != null ? System.getenv("SOCKET_KEYSTORE_PASSWORD") : "");	
+		configValues.put("socket.isSecure",
+				System.getenv("SOCKET_IS_SECURE") != null ? System.getenv("SOCKET_IS_SECURE") : "false");
+		
 		configValues.put("datasource.ip", System.getenv("DATASOURCE_IP") != null ? System.getenv("DATASOURCE_IP") : "");
 		configValues.put("datasource.port",
 				System.getenv("DATASOURCE_PORT") != null ? System.getenv("DATASOURCE_PORT") : "");
@@ -39,6 +49,8 @@ public class Config {
 				System.getenv("DATASOURCE_USER_NAME") != null ? System.getenv("DATASOURCE_USER_NAME") : "");
 		configValues.put("datasource.password",
 				System.getenv("DATASOURCE_PASSWORD") != null ? System.getenv("DATASOURCE_PASSWORD") : "");
+		configValues.put("socket.isSecure",
+				System.getenv("SOCKET_IS_SECURE") != null ? System.getenv("SOCKET_IS_SECURE") : "false");
 	}
 
 	public static Config getInstance() {
@@ -78,11 +90,11 @@ public class Config {
 		configValues.put(key, value);
 	}
 
-	public int getPort() {
+	public int getServerPort() {
 		return Integer.parseInt(configValues.get("server.port"));
 	}
 
-	public void setPort(int port) {
+	public void setServerPort(int port) {
 		configValues.put("server.port", String.valueOf(port));
 	}
 
@@ -161,6 +173,62 @@ public class Config {
 	public String getDataSourceUrl(String connector, String encoding) {
 		return connector + "://" + getDataSourceIp() + "/" + getDataSourceDbName() + "?characterEncoding=" + encoding;
 	
+	}
+	
+	public int getSocketPort() {
+		return Integer.valueOf(configValues.get("socket.port"));
+	}
+
+	public void setSocketPort(int port) {
+		configValues.put("socket.port", String.valueOf(port));
+	}
+	
+	public String getContainerBasePath() {
+		return configValues.get("container.basePath");
+	}
+
+	public void setContainerBasePath(String containerBasePath) {
+		configValues.put("container.basePath", containerBasePath);
+	}
+	
+	public String getContainerMavenRepoPath() {
+		return configValues.get("container.mavenRepoPath");
+	}
+
+	public void setContainerMavenRepoPath(String containerMavenRepoPath) {
+		configValues.put("container.mavenRepoPath", containerMavenRepoPath);
+	}
+	
+	public String getContainerMavenSettingsPath() {
+		return configValues.get("container.mavenSettingsPath");
+	}
+
+	public void setContainerMavenSettingsPath(String containerMavenSettingsPath) {
+		configValues.put("container.mavenSettingsPath", containerMavenSettingsPath);
+	}
+	
+	public String getKeystorePath() {
+		return configValues.get("socket.keystorePath");
+	}
+
+	public void setKeystorePath(String keystorePath) {
+		configValues.put("socket.keystorePath", keystorePath);
+	}
+
+	public String getKeystorePassword() {
+		return configValues.get("socket.keystorePassword");
+	}
+
+	public void setKeystorePassword(String keystorePassword) {
+		configValues.put("socket.keystorePassword", keystorePassword);
+	}
+	
+	public boolean isSecure() {
+		return Boolean.valueOf(configValues.get("socket.isSecure"));
+	}
+
+	public void setIsSecure(boolean isSecure) {
+		configValues.put("socket.isSecure", String.valueOf(isSecure));
 	}
 
 	@Override

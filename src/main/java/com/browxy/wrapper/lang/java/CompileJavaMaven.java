@@ -17,19 +17,18 @@ import com.browxy.wrapper.lang.CompilerCode;
 import com.browxy.wrapper.lang.CompilerResult;
 import com.browxy.wrapper.lang.CustomClassLoader;
 import com.browxy.wrapper.message.Message;
+import com.browxy.wrapper.server.config.Config;
 
 public class CompileJavaMaven implements CompilerCode {
 	private static final Logger logger = LoggerFactory.getLogger(CompileJavaMaven.class);
 
 	@Override
 	public CompilerResult compileUserCode(Message message) {
+		Config config = Config.getInstance();
 		try {
-			String containerBasePath = System.getProperty("containerBasePath");
-			String customRepoPath = System.getProperty("mavenRepoPath") != null ? System.getProperty("mavenRepoPath")
-					: "/srv/maven";
-			String customSettingsPath = System.getProperty("mavenSettingsPath") != null
-					? System.getProperty("mavenSettingsPath")
-					: "/srv/maven/settings.xml";
+			String containerBasePath = config.getContainerBasePath();
+			String customRepoPath = config.getContainerMavenRepoPath();
+			String customSettingsPath = config.getContainerMavenSettingsPath();
 
 			ProcessBuilder builder = new ProcessBuilder("mvn", "-Dmaven.repo.local=" + customRepoPath, "-s",
 					customSettingsPath, "clean", "compile", "dependency:build-classpath",

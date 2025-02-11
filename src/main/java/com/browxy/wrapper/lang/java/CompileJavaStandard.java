@@ -15,14 +15,16 @@ import com.browxy.wrapper.lang.CompilerResult;
 import com.browxy.wrapper.lang.CustomClassLoader;
 import com.browxy.wrapper.message.JavaMessage;
 import com.browxy.wrapper.message.Message;
+import com.browxy.wrapper.server.config.Config;
 
 public class CompileJavaStandard implements CompilerCode {
 	private static final Logger logger = LoggerFactory.getLogger(CompileJavaStandard.class);
 
 	@Override
 	public CompilerResult compileUserCode(Message message) {
+		Config config = Config.getInstance();
 		JavaMessage javaMessage = (JavaMessage) message;
-		String containerBasePath = System.getProperty("containerBasePath");
+		String containerBasePath = config.getContainerBasePath();
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) {
 			logger.error("No Java compiler found.");

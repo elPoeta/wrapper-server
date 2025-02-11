@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 
 public class MessageFactory {
 	public static Message createMessage(String json) {
-		String language = System.getProperty("language");
+		String language = "java";
         Gson gson = new Gson();
 		switch (language) {
 		case "java":
